@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="to-do.js">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+    }
+    .completed {
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+  <h1>To-Do List</h1>
+  <form id="task-form">
+    <input type="text" id="task-title" placeholder="New Task" required />
+    <button type="submit">Add Task</button>
+  </form>
+  <ul id="task-list"></ul>
+
+  <script>
+    const taskForm = document.getElementById('task-form');
+    const taskTitle = document.getElementById('task-title');
+    const taskList = document.getElementById('task-list');
+
+    const fetchTasks = async () => {
+      const response = await fetch('/api/tasks');
+      const tasks = await response.json();
+      renderTasks(tasks);
+    };
+
+    const renderTasks = (tasks) => {
+      taskList.innerHTML = '';
+      tasks.forEach((task) => {
+        const li = document.createElement('li');
+        li.className = task.completed ? 'completed' : '';
+        li.innerHTML = `
+          <span>${task.title}</span>
+          <button onclick="toggleTask(${task.id}, ${!task.completed})">${task.completed ? 'Undo' : 'Complete'}</button>
+          <button onclick="deleteTask(${task.id})">Delete</button>
+        `;
+        taskList.appendChild(li);
+      });
+    };
+
+    taskForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = taskTitle.value;
+      if (!title) return;
+
+      await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      });
+
+      taskTitle.value = '';
+      fetchTasks();
+    });
+
+    const toggleTask = async (id, completed) => {
+      await fetch(`/api/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed }),
+      });
+      fetchTasks();
+    };
+
+    const deleteTask = async (id) => {
+      await fetch(`/api/tasks/${id}`, {
+        method: 'DELETE',
+      });
+      fetchTasks();
+    };
+
+    // Initial fetch
+    fetchTasks();
+  </script>
+</body>
+</html>

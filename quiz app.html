@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz App</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // JavaScript code goes here
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <h1>Quiz App</h1>
+      <div id="quiz-container"></div>
+      <button id="submit-button" style="display: none;">Submit</button>
+      <div id="result" style="margin-top: 20px;"></div>
+    `;
+
+    const questions = [
+      {
+        question: "What is the capital of France?",
+        choices: ["Berlin", "Madrid", "Paris", "Rome"],
+        correctAnswer: 2,
+      },
+      {
+        question: "Who wrote 'To Kill a Mockingbird'?",
+        choices: ["Harper Lee", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"],
+        correctAnswer: 0,
+      },
+      {
+        question: "What is the smallest planet in our solar system?",
+        choices: ["Earth", "Mars", "Mercury", "Venus"],
+        correctAnswer: 2,
+      },
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    const submitButton = document.getElementById('submit-button');
+    const resultContainer = document.getElementById('result');
+
+    function renderQuiz() {
+      questions.forEach((q, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('question');
+
+        const questionTitle = document.createElement('h3');
+        questionTitle.textContent = `${index + 1}. ${q.question}`;
+        questionDiv.appendChild(questionTitle);
+
+        q.choices.forEach((choice, choiceIndex) => {
+          const label = document.createElement('label');
+          label.style.display = 'block';
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `question-${index}`;
+          input.value = choiceIndex;
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(choice));
+          questionDiv.appendChild(label);
+        });
+
+        quizContainer.appendChild(questionDiv);
+      });
+
+      submitButton.style.display = 'block';
+    }
+
+    function calculateResults() {
+      let score = 0;
+      let total = questions.length;
+
+      questions.forEach((q, index) => {
+        const selectedOption = document.querySelector(
+          `input[name="question-${index}"]:checked`
+        );
+
+        if (selectedOption && parseInt(selectedOption.value) === q.correctAnswer) {
+          score++;
+        }
+      });
+
+      resultContainer.innerHTML = `<h2>Your Score: ${score} / ${total}</h2>`;
+    }
+
+    submitButton.addEventListener('click', calculateResults);
+
+    renderQuiz();
+  </script>
+</body>
+</html>
